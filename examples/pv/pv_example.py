@@ -18,13 +18,18 @@ import yaml
 import pandas as pd
 import matplotlib.pyplot as plt
 import pvlib
+os.chdir(os.path.join(os.path.expanduser('~'), 'pecos',
+                      'examples', 'pv'))
 import pv_model
+import os
+os.chdir(os.path.join(os.path.expanduser('~'), 'pecos'))
 import pecos
 
 # Initialize logger
 pecos.logger.initialize()
 
 # Open config file and extract information
+os.chdir(os.path.join(os.path.expanduser('~'), 'pecos', 'examples', 'pv'))
 config_file = 'Baseline_config.yml'
 fid = open(config_file, 'r')
 config = yaml.safe_load(fid)
@@ -44,6 +49,14 @@ pm = pecos.monitoring.PerformanceMonitoring()
 # Populate the object with pv and weather dataframes and translation dictionaries
 database_file = 'Baseline6kW_2015_11_11.dat'
 df = pecos.io.read_campbell_scientific(database_file)
+df = pd.read_csv(database_file, skiprows=1, index_col='TIMESTAMP', 
+                         parse_dates=True, dtype ='unicode') #, low_memory=False)
+df = df[2:]
+index = pd.to_datetime(df.index)
+Unnamed = df.filter(regex='Unnamed')
+df = df.drop(columns=Unnamed.columns)
+df = pd.DataFrame(data = df.values, index = index, columns = df.columns, dtype='float64')
+
 df.index = df.index.tz_localize(location['Timezone'])
 pm.add_dataframe(df)
 pm.add_translation_dictionary(BASE_translation_dictionary)

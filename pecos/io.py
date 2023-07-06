@@ -56,11 +56,11 @@ def read_campbell_scientific(filename, index_col='TIMESTAMP', encoding=None):
 
     try:
         df = pd.read_csv(filename, skiprows=1, encoding=encoding, index_col=index_col, 
-                         parse_dates=True, dtype ='unicode', error_bad_lines=False) #, low_memory=False)
+                         parse_dates=True, dtype ='unicode') #, error_bad_lines=False) #, low_memory=False)
         df = df[2:]
         index = pd.to_datetime(df.index)
         Unnamed = df.filter(regex='Unnamed')
-        df = df.drop(Unnamed.columns, 1)
+        df = df.drop(columns=Unnamed.columns) #Unnamed.columns, 1)
         df = pd.DataFrame(data = df.values, index = index, columns = df.columns, dtype='float64')
     except:
         logger.warning("Cannot extract database, CSV file reader failed " + filename)
